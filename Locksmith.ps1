@@ -1,26 +1,4 @@
-﻿﻿function Get-Target {
-    param (
-        [string]$Forest,
-        [string]$InputPath,
-        [System.Management.Automation.PSCredential]$Credential
-    )
-
-    if ($Forest) {
-        $Targets = $Forest
-    }
-    elseif ($InputPath) {
-        $Targets = Get-Content $InputPath
-    } else {
-        if ($Credential){
-            $Targets = (Get-ADForest -server $server -Credential $Credential).Name
-        } else {
-            $Targets = (Get-ADForest -server $server).Name
-        }
-    }
-    return $Targets
-}
-
-function Invoke-Locksmith {
+﻿function Invoke-Locksmith {
     <#
     .SYNOPSIS
     Finds the most common malconfigurations of Active Directory Certificate Services (AD CS).
@@ -187,10 +165,17 @@ function Invoke-Locksmith {
         break;
     }
 
-    if ($Credential) {
-        $Targets = Get-Target -Credential $Credential
+    if ($Forest) {
+        $Targets = $Forest
+    }
+    elseif ($InputPath) {
+        $Targets = Get-Content $InputPath
     } else {
-        $Targets = Get-Target
+        if ($Credential){
+            $Targets = (Get-ADForest -server $server -Credential $Credential).Name
+        } else {
+            $Targets = (Get-ADForest -server $server).Name
+        }
     }
 
     Write-Host "Gathering AD CS Objects from $($Targets)..."
