@@ -141,25 +141,28 @@
     }
 
     # Add SIDs of (probably) Safe Users to $SafeUsers
-    Get-ADGroupMember -server $server $EnterpriseAdminsSID | ForEach-Object {
-        $SafeUsers += '|' + $_.SID.Value
-    }
-
+    #Get-ADGroupMember -server $server $EnterpriseAdminsSID | ForEach-Object {
+    #    $SafeUsers += '|' + $_.SID.Value
+    #}
+	
+	<#
     #(Get-ADForest -server $server).Domains | ForEach-Object {
         $DomainSID = (Get-ADDomain -server $server).DomainSID.Value
         $SafeGroupRIDs = @('-517','-512')
         $SafeGroupSIDs = @('S-1-5-32-544')
-        foreach ($rid in $SafeGroupRIDs ) {
-            $SafeGroupSIDs += $DomainSID + $rid
-        }
+        #foreach ($rid in $SafeGroupRIDs ) {
+        #    $SafeGroupSIDs += $DomainSID + $rid
+        #}
         foreach ($sid in $SafeGroupSIDs) {
             $sid = ($DomainSID + $sid)
-            $users += (Get-ADGroupMember $sid -Server $server -Recursive).SID.Value
+            $groupmembers = (Get-ADGroupMember $sid -Server $server -Recursive)
+            $users += $groupMembers.SID.Value
         }
         foreach ($user in $users) {
             $SafeUsers += '|' + $user
         }
     #}
+	#>
 
     if (!$Credential -and (Get-RestrictedAdminModeSetting)) {
         Write-Warning "Restricted Admin Mode appears to be in place, re-run with the '-Credential domain\user' option"
