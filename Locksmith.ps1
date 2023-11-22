@@ -184,9 +184,8 @@
     Write-Host "Gathering AD CS Objects from $($Targets)..."
     
 	$ADRoot = (Get-ADRootDSE -Server $server).defaultNamingContext
-	$ADCSObjects = (
-		Get-ADObject -Server -Filter * -SearchBase "CN=Public Key Services,CN=Services,CN=Configuration,$ADRoot" -SearchScope 2 -Properties *
-	)
+	$ADCSObjects = (Get-ADObject -Server $server -Filter * -SearchBase "CN=Public Key Services,CN=Services,CN=Configuration,$ADRoot" -SearchScope 2 -Properties *)
+	
 	Set-AdditionalCAProperty -ADCSObjects $ADCSObjects
 	$ADCSObjects += Get-CAHostObject -ADCSObjects $ADCSObjects
 	$CAHosts = Get-CAHostObject -ADCSObjects $ADCSObjects
