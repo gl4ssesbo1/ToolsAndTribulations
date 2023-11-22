@@ -198,7 +198,7 @@
 			$CAHostFQDN = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname -Credential $Credential).DnsHostname
 		} else {
 			$CAHostDistinguishedName = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer')}).DistinguishedName
-			$CAHostFQDN = (Get-ADObject -Filter -server $server { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname).DnsHostname
+			$CAHostFQDN = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname).DnsHostname
 		}
 		$ping = Test-Connection -ComputerName $CAHostFQDN -Quiet -Count 1
 		if ($ping) {
