@@ -1,4 +1,26 @@
-﻿function Invoke-Locksmith {
+﻿﻿function Get-Target {
+    param (
+        [string]$Forest,
+        [string]$InputPath,
+        [System.Management.Automation.PSCredential]$Credential
+    )
+
+    if ($Forest) {
+        $Targets = $Forest
+    }
+    elseif ($InputPath) {
+        $Targets = Get-Content $InputPath
+    } else {
+        if ($Credential){
+            $Targets = (Get-ADForest -server $server -Credential $Credential).Name
+        } else {
+            $Targets = (Get-ADForest -server $server).Name
+        }
+    }
+    return $Targets
+}
+
+function Invoke-Locksmith {
     <#
     .SYNOPSIS
     Finds the most common malconfigurations of Active Directory Certificate Services (AD CS).
@@ -145,7 +167,7 @@
         $SafeUsers += '|' + $_.SID.Value
     }
 
-    (Get-ADForest -server $server).Domains | ForEach-Object {
+    #(Get-ADForest -server $server).Domains | ForEach-Object {
         $DomainSID = (Get-ADDomain -server $server $_).DomainSID.Value
         $SafeGroupRIDs = @('-517','-512')
         $SafeGroupSIDs = @('S-1-5-32-544')
@@ -153,12 +175,12 @@
             $SafeGroupSIDs += $DomainSID + $rid
         }
         foreach ($sid in $SafeGroupSIDs) {
-            $users += (Get-ADGroupMember $sid -Server $_ -Recursive).SID.Value # - server $server
+            $users += (Get-ADGroupMember $sid -Server $server -Recursive).SID.Value
         }
         foreach ($user in $users) {
             $SafeUsers += '|' + $user
         }
-    }
+    #}
 
     if (!$Credential -and (Get-RestrictedAdminModeSetting)) {
         Write-Warning "Restricted Admin Mode appears to be in place, re-run with the '-Credential domain\user' option"
