@@ -14,11 +14,11 @@
             $CAHostname = $_.dNSHostName.split('.')[0]
             # $CAName = $_.Name
             if ($Credential) {
-                $CAHostDistinguishedName = (Get-ADObject -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Credential $Credential).DistinguishedName
+                $CAHostDistinguishedName = (Get-ADObject -Server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Credential $Credential).DistinguishedName
                 $CAHostFQDN = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname -Credential $Credential).DnsHostname
             } else {
-                $CAHostDistinguishedName = (Get-ADObject -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Server $ForestGC ).DistinguishedName
-                $CAHostFQDN = (Get-ADObject -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname -Server $ForestGC).DnsHostname
+                $CAHostDistinguishedName = (Get-ADObject -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -server $server).DistinguishedName
+                $CAHostFQDN = (Get-ADObject -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname -server $server).DnsHostname
             }
             $ping = Test-Connection -ComputerName $CAHostFQDN -Quiet -Count 1
             if ($ping) {
