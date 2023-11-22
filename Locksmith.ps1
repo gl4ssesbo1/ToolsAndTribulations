@@ -171,8 +171,7 @@
 
     if ($Forest) {
         $Targets = $Forest
-    }
-    elseif ($InputPath) {
+    } elseif ($InputPath) {
         $Targets = Get-Content $InputPath
     } else {
         if ($Credential){
@@ -183,19 +182,16 @@
     }
 
     Write-Host "Gathering AD CS Objects from $($Targets)..."
-    if ($Credential) {
-        $ADCSObjects = Get-ADCSObject -Targets $Targets -Credential $Credential
-        Set-AdditionalCAProperty -ADCSObjects $ADCSObjects -Credential $Credential
-        $ADCSObjects += Get-CAHostObject -ADCSObjects $ADCSObjects -Credential $Credential
-        $CAHosts = Get-CAHostObject -ADCSObjects $ADCSObjects -Credential $Credential
-        $CAHosts | ForEach-Object { $SafeUsers += '|' + $_.Name }
-    } else {
-        $ADCSObjects = Get-ADCSObject -Targets $Targets
-        Set-AdditionalCAProperty -ADCSObjects $ADCSObjects
-        $ADCSObjects += Get-CAHostObject -ADCSObjects $ADCSObjects
-        $CAHosts = Get-CAHostObject -ADCSObjects $ADCSObjects
-        $CAHosts | ForEach-Object { $SafeUsers += '|' + $_.Name }
-    }
+    
+	$ADCSObjects = (
+		$ADRoot = (Get-ADRootDSE -Server $server).defaultNamingContext
+		Get-ADObject -Server -Filter * -SearchBase "CN=Public Key Services,CN=Services,CN=Configuration,$ADRoot" -SearchScope 2 -Properties *
+	)
+	Set-AdditionalCAProperty -ADCSObjects $ADCSObjects
+	$ADCSObjects += Get-CAHostObject -ADCSObjects $ADCSObjects
+	$CAHosts = Get-CAHostObject -ADCSObjects $ADCSObjects
+	$CAHosts | ForEach-Object { $SafeUsers += '|' + $_.Name }
+    
 
     if ( $Scans ) {
     # If the Scans parameter was used, Invoke-Scans with the specified checks.
