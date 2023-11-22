@@ -146,13 +146,14 @@
     }
 
     #(Get-ADForest -server $server).Domains | ForEach-Object {
-        $DomainSID = (Get-ADDomain -server $server $_).DomainSID.Value
+        $DomainSID = (Get-ADDomain -server $server).DomainSID.Value
         $SafeGroupRIDs = @('-517','-512')
         $SafeGroupSIDs = @('S-1-5-32-544')
         foreach ($rid in $SafeGroupRIDs ) {
             $SafeGroupSIDs += $DomainSID + $rid
         }
         foreach ($sid in $SafeGroupSIDs) {
+            $sid = ($DomainSID + $sid)
             $users += (Get-ADGroupMember $sid -Server $server -Recursive).SID.Value
         }
         foreach ($user in $users) {
