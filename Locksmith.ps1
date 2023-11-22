@@ -153,7 +153,7 @@
             $SafeGroupSIDs += $DomainSID + $rid
         }
         foreach ($sid in $SafeGroupSIDs) {
-            $users += (Get-ADGroupMember -server $server $sid -Server $_ -Recursive).SID.Value
+            $users += (Get-ADGroupMember $sid -Server $_ -Recursive).SID.Value # - server $server
         }
         foreach ($user in $users) {
             $SafeUsers += '|' + $user
