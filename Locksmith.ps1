@@ -194,11 +194,15 @@
 		$CAHostname = $_.dNSHostName.split('.')[0]
 		# $CAName = $_.Name
 		if ($Credential) {
-			$CAHostDistinguishedName = (Get-ADObject -Server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Credential $Credential).DistinguishedName
-			$CAHostFQDN = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname -Credential $Credential).DnsHostname
+			$cadn = (Get-ADObject -Server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Credential $Credential)
+			$CAHostDistinguishedName = $cadn.DistinguishedName
+			$cafqdn = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname -Credential $Credential)
+			$CAHostFQDN = $cafqdn.DnsHostname
 		} else {
-			$CAHostDistinguishedName = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer')}).DistinguishedName
-			$CAHostFQDN = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname).DnsHostname
+			$cadn = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer')})
+			$CAHostDistinguishedName = $cadn.DistinguishedName
+			$cafqdn = (Get-ADObject -server $server -Filter { (Name -eq $CAHostName) -and (objectclass -eq 'computer') } -Properties DnsHostname)
+			$CAHostFQDN = $cafqdn.DnsHostname
 		}
 		$ping = Test-Connection -ComputerName $CAHostFQDN -Quiet -Count 1
 		if ($ping) {
